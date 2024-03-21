@@ -1,37 +1,15 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.core.validators import (
-    RegexValidator, MinValueValidator, MaxValueValidator)
+
 
 from users.models import FoodgramUser
 
-MAX_LENGHTH = 20
-
-
-def format_string(field1, field2):
-    len_field1 = len(field1)
-    len_field2 = len(field2)
-
-    if len_field1 > MAX_LENGHTH and len_field2 > MAX_LENGHTH:
-        return f'{field1[:MAX_LENGHTH]}... - {field2[:MAX_LENGHTH]}...'
-    elif len_field1 > MAX_LENGHTH and len_field2 <= MAX_LENGHTH:
-        return f'{field1[:MAX_LENGHTH]}... - {field2}'
-    elif len_field1 <= MAX_LENGHTH and len_field2 > MAX_LENGHTH:
-        return f'{field1} - {field2[:MAX_LENGHTH]}...'
-    else:
-        return f'{field1} - {field2}'
-
 
 def leight_field(field):
-    if len(field) > MAX_LENGHTH:
-        return field[:MAX_LENGHTH] + '...'
+    if len(field) > 20:
+        return field[:20] + '...'
     else:
         return field
-
-
-def lowercase_validator(value):
-    if value != value.lower():
-        raise ValidationError("Цвет тега должен быть в нижнем регистре.")
 
 
 class Tag(models.Model):
@@ -42,16 +20,6 @@ class Tag(models.Model):
         'Цвет тега',
         unique=True,
         max_length=7,
-        validators=[
-            RegexValidator(
-                regex=r'^#[a-z0-9]{0,6}$',
-                message='Неверное значение. Допускаются только цифры, '
-                'символ #(обратите внимание,что символ # должен быть первым )'
-                'и английские буквы в нижнем регистре.',
-                code='invalid_color',
-            ),
-            lowercase_validator,
-        ],
     )
     slug = models.CharField(
         'слаг тега',
@@ -108,15 +76,7 @@ class Recipe(models.Model):
     )
     name = models.CharField('Название рецепта', max_length=200)
     text = models.TextField('Описание рецепта')
-    cooking_time = models.PositiveSmallIntegerField(
-        'Время приготовления',
-        validators=[
-            MinValueValidator(1, message='Время приготовления должно '
-                              'быть не меньше одной минуты'),
-            MaxValueValidator(1440, message='Время приготовления не должно '
-                              'превышать 1440 минут')
-        ]
-    )
+    cooking_time = models.PositiveSmallIntegerField('Время приготовления')
 
     class Meta:
         ordering = ('name',)
@@ -142,14 +102,7 @@ class IngredientInRecipe(models.Model):
         related_name='ingredient_recipe',
         on_delete=models.CASCADE
     )
-    amount = models.PositiveSmallIntegerField(
-        'Количество ингрединта',
-        validators=[
-            MinValueValidator(1, 'Значение должно быть не меньше 1'),
-            MaxValueValidator(10000, message='Значение не должно быть '
-                              'больше 10000')
-        ]
-    )
+    amount = models.PositiveSmallIntegerField('Количество ингрединта')
 
     class Meta:
         ordering = ('recipe',)
@@ -163,7 +116,7 @@ class IngredientInRecipe(models.Model):
         ]
 
     def __str__(self):
-        return format_string(self.ingredient.name, self.recipe.name)
+        return f'{self.ingredient.name} - {self.recipe.name}'
 
 
 class Follow(models.Model):
@@ -190,7 +143,7 @@ class Follow(models.Model):
         unique_together = ('user', 'author')
 
     def __str__(self):
-        return format_string(self.user.username, self.author.username)
+        return f'{self.user.username} - {self.author.username}'
 
     def clean(self):
         if self.user == self.author:
@@ -215,7 +168,7 @@ class ShopingCartAndFavoriteRecipe(models.Model):
         abstract = True
 
     def __str__(self):
-        return format_string(self.user.username, self.recipe.name)
+        return f'{self.user.username} - {self.recipe.name}'
 
 
 class FavoriteRecipe(ShopingCartAndFavoriteRecipe):

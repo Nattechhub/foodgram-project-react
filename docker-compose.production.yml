@@ -1,0 +1,37 @@
+version: '1'
+
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    container_name: foodgram_db
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  backend:
+    container_name: foodgram_backend
+    image: nattech/foodgram_backend
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/media
+  frontend:
+    container_name: foodgram_frontend
+    image: nattech/foodgram_frontend
+    env_file: .env
+    command: cp -r /app/build/. /static/
+    volumes:
+      - static:/static
+  gateway:
+    container_name: foodgram_gateway
+    image: nattech/foodgram_gateway
+    env_file: .env
+    ports:
+      - 8000:80
+    volumes:
+      - static:/staticfiles/
+      - media:/media
