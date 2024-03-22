@@ -2,6 +2,13 @@
 [![Django](https://img.shields.io/badge/Django-464646?style=flat-square&logo=django)](https://www.djangoproject.com/)
 [![Postman](https://img.shields.io/badge/Postman-464646?style=flat-square&logo=postman)](https://www.postman.com/)
 
+## Ссылка на сайт
+[FoodGram](https://foodgramproject24.hopto.org)
+
+## Вход в админку
+- **Email:** admin@yandex.ru
+- **Пароль:** admin1234
+
 ### Проект Foodgram – Продуктовый помощник
 На этом сервисе пользователи смогут публиковать рецепты, подписываться 
 на публикации других пользователей, добавлять понравившиеся рецепты в список
